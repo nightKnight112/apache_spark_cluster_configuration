@@ -23,7 +23,8 @@ def create_spark():
             .appName("DB-ETL-Clustering-Service")
             .master("spark://spark-master:7077")
             .config("spark.jars", "postgresql-42.7.3.jar")
-
+            .config("spark.speculation", "false")
+            
             .getOrCreate()
         )
 
