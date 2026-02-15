@@ -8,4 +8,4 @@ spark_driver_cores: 1
 spark_sql_shuffle_partitions: 200
 spark_default_parallelism: 200
 spark_log_level: "WARN"
-spark_volume_mount_data_path: "/usr/src/app/parquet_folder"
+spark_volume_mount_data_path: "/opt/spark/data"

@@ -9,6 +9,5 @@ COPY requirements.txt ./
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-RUN mkdir -p parquet_folder && chmod 777 -R parquet_folder
 EXPOSE 5000
 CMD ["python", "app.py"]
