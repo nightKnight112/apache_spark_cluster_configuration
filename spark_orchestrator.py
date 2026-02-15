@@ -61,8 +61,10 @@ def initalize_spark_session_and_use_cluster():
     # 3. WRITE TO PARQUET (Cluster Shared Volume)
     # -------------------------------------------------------
 
+    print("Number of rows to write:", source_df.count())
+    parquet_path = f"file://{config['spark_volume_mount_data_path']}"
+
     try:
-        parquet_path = f"{config['spark_volume_mount_data_path']}"
 
         (
             source_df.write
