@@ -76,7 +76,7 @@ def initalize_spark_session_and_use_cluster():
     # -------------------------------------------------------
 
     target_jdbc_url = "jdbc:postgresql://35.172.200.140:8101/postgres"
-    target_table = "public.target_table"
+    target_table = "public.customers"
 
     target_connection_properties = {
         "user": "postgres",
