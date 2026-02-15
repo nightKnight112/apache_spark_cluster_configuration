@@ -55,7 +55,6 @@ def initalize_spark_session_and_use_cluster():
         print("Number of rows to write:", source_df.count())
     except Exception as e:
         print("Error reading from source database:", str(e))
-        spark.stop()
         return {"status": "error", "message": "Failed to read from source database."}, 500
 
     # -------------------------------------------------------
@@ -74,7 +73,6 @@ def initalize_spark_session_and_use_cluster():
         print("Data written to parquet stage.")
     except Exception as e:
         print("Error writing to parquet:", str(e))
-        spark.stop()
         return {"status": "error", "message": "Failed to write to parquet."}, 500
 
     # -------------------------------------------------------
@@ -87,7 +85,6 @@ def initalize_spark_session_and_use_cluster():
         reloaded_df.printSchema()
     except Exception as e:
         print("Error reading from parquet:", str(e))
-        spark.stop()
         return {"status": "error", "message": "Failed to read from parquet."}, 500
 
     # -------------------------------------------------------
@@ -116,7 +113,6 @@ def initalize_spark_session_and_use_cluster():
         print("Data written to target database.")
     except Exception as e:
         print("Error writing to target database:", str(e))
-        spark.stop()
         return {"status": "error", "message": "Failed to write to target database."}, 500
 
     # -------------------------------------------------------
