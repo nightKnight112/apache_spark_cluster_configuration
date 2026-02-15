@@ -8,34 +8,12 @@ import yaml
 with open("config.yaml", "r") as config_file:
     config = yaml.safe_load(config_file)
 
-# -------------------------------------------------------
-# Create Spark Session ONCE (App Startup)
-# -------------------------------------------------------
-
-spark = (
-    SparkSession.builder
-    .appName("DB-ETL-Clustering-Service")
-    .master(config['spark_master'])
-    .config("spark.executor.memory", "2g")
-    .config("spark.executor.cores", "2")
-    .config("spark.driver.memory", "1g")
-    .config("spark.jars", "/usr/src/app/jars/postgresql-42.7.3.jar")
-    .config("spark.default.parallelism", "4")
-    .config("spark.sql.shuffle.partitions", "4")
-    .getOrCreate()
-)
-
-spark.sparkContext.setLogLevel("ERROR")
-
-print("Spark initialized at startup")
-print("Spark Version:", spark.version)
-
 
 # -------------------------------------------------------
 # API Callable Function
 # -------------------------------------------------------
 
-def initalize_spark_session_and_use_cluster():
+def initalize_spark_session_and_use_cluster(spark=None):
 
     print("Using existing Spark Session")
 
