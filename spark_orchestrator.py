@@ -52,6 +52,7 @@ def initalize_spark_session_and_use_cluster():
 
         print("Source Schema:")
         source_df.printSchema()
+        print("Number of rows to write:", source_df.count())
     except Exception as e:
         print("Error reading from source database:", str(e))
         spark.stop()
@@ -60,8 +61,6 @@ def initalize_spark_session_and_use_cluster():
     # -------------------------------------------------------
     # 3. WRITE TO PARQUET (Cluster Shared Volume)
     # -------------------------------------------------------
-
-    print("Number of rows to write:", source_df.count())
     parquet_path = f"file://{config['spark_volume_mount_data_path']}"
 
     try:
