@@ -23,9 +23,6 @@ def create_spark():
             .appName("DB-ETL-Clustering-Service")
             .master("spark://spark-master:7077")
             .config("spark.jars", "postgresql-42.7.3.jar")
-            .config("spark.executor.memory", "2g")
-            .config("spark.executor.cores", "2")
-            .config("spark.driver.memory", "1g") 
 
             .getOrCreate()
         )
