@@ -38,7 +38,7 @@ def initalize_spark_session_and_use_cluster():
 
     connection_properties = {
         "user": "postgres",
-        "password": "passwordadminsource",
+        "password": "source",
         "driver": "org.postgresql.Driver"
     }
 
@@ -98,7 +98,7 @@ def initalize_spark_session_and_use_cluster():
 
     target_connection_properties = {
         "user": "postgres",
-        "password": "passwordadmintarget",
+        "password": "target",
         "driver": "org.postgresql.Driver"
     }
     try:
