@@ -33,7 +33,7 @@ def initalize_spark_session_and_use_cluster():
     # 2. READ FROM SOURCE DATABASE → DataFrame
     # -------------------------------------------------------
 
-    jdbc_url = "jdbc:postgresql://10.89.0.15:5432/postgres"
+    jdbc_url = "jdbc:postgresql://100.53.177.194:8100/postgres"
     source_table = "public.customers"
 
     connection_properties = {
@@ -93,7 +93,7 @@ def initalize_spark_session_and_use_cluster():
     # 6. WRITE TO TARGET DATABASE
     # -------------------------------------------------------
 
-    target_jdbc_url = "jdbc:postgresql://10.89.0.16:5432/postgres"
+    target_jdbc_url = "jdbc:postgresql://100.53.177.194:8101/postgres"
     target_table = "public.customers"
 
     target_connection_properties = {
