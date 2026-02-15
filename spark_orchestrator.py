@@ -1,17 +1,6 @@
-from pyspark.sql import SparkSession
-import yaml
+from pyspark.sql.functions import col
+from pyspark.sql.types import NullType, DecimalType
 
-# -------------------------------------------------------
-# Load Config
-# -------------------------------------------------------
-
-with open("config.yaml", "r") as config_file:
-    config = yaml.safe_load(config_file)
-
-
-# -------------------------------------------------------
-# API Callable Function
-# -------------------------------------------------------
 
 def initalize_spark_session_and_use_cluster(spark=None):
 
@@ -49,19 +38,79 @@ def initalize_spark_session_and_use_cluster(spark=None):
         print("Error reading from source database:", str(e))
         return {"status": "error", "message": str(e)}, 500
 
+
     # -------------------------------------------------------
-    # WRITE TO PARQUET
+    # TEST 1 — Check for NullType columns
     # -------------------------------------------------------
 
-    parquet_path = config['spark_volume_mount_data_path']  # ❌ removed file://
+    nulltype_cols = [f.name for f in source_df.schema.fields if isinstance(f.dataType, NullType)]
+
+    if nulltype_cols:
+        print("❌ NullType columns found:", nulltype_cols)
+        return {"status": "error", "message": f"NullType columns found: {nulltype_cols}"}, 500
+    else:
+        print("✅ No NullType columns found")
+
+
+    # -------------------------------------------------------
+    # TEST 2 — Check for High Precision Decimals
+    # -------------------------------------------------------
+
+    decimal_cols = []
+    for f in source_df.schema.fields:
+        if isinstance(f.dataType, DecimalType):
+            decimal_cols.append((f.name, f.dataType.precision, f.dataType.scale))
+
+    if decimal_cols:
+        print("⚠ Decimal columns found:", decimal_cols)
+        print("Casting decimals to double for safety...")
+        for col_name, _, _ in decimal_cols:
+            source_df = source_df.withColumn(col_name, col(col_name).cast("double"))
+    else:
+        print("✅ No Decimal columns found")
+
+
+    # -------------------------------------------------------
+    # TEST 3 — Normalize Column Names
+    # -------------------------------------------------------
+
+    source_df = source_df.toDF(*[c.lower() for c in source_df.columns])
+    print("✅ Column names normalized to lowercase")
+
+
+    # -------------------------------------------------------
+    # TEST 4 — Minimal Parquet Write Test
+    # -------------------------------------------------------
+
+    try:
+        source_df.limit(1).write.mode("overwrite").parquet("/opt/spark/data/test_minimal")
+        print("✅ Minimal parquet write succeeded")
+    except Exception as e:
+        print("❌ Minimal parquet write failed:", str(e))
+        return {"status": "error", "message": f"Minimal parquet test failed: {str(e)}"}, 500
+
+
+    # -------------------------------------------------------
+    # TEST 5 — Explain Plan (Detect GPU/RAPIDS)
+    # -------------------------------------------------------
+
+    print("Execution Plan:")
+    source_df.explain(True)
+
+
+    # -------------------------------------------------------
+    # WRITE TO PARQUET (MAIN)
+    # -------------------------------------------------------
+
+    parquet_path = "/opt/spark/data"
 
     try:
         source_df.write.mode("overwrite").parquet(parquet_path)
-        print("Data written to parquet stage.")
-
+        print("✅ Data written to parquet stage.")
     except Exception as e:
-        print("Error writing to parquet:", str(e))
+        print("❌ Error writing to parquet:", str(e))
         return {"status": "error", "message": str(e)}, 500
+
 
     # -------------------------------------------------------
     # READ PARQUET BACK
@@ -71,10 +120,10 @@ def initalize_spark_session_and_use_cluster(spark=None):
         reloaded_df = spark.read.parquet(parquet_path)
         print("Reloaded Schema:")
         reloaded_df.printSchema()
-
     except Exception as e:
-        print("Error reading from parquet:", str(e))
+        print("❌ Error reading from parquet:", str(e))
         return {"status": "error", "message": str(e)}, 500
+
 
     # -------------------------------------------------------
     # WRITE TO TARGET DATABASE
@@ -95,13 +144,9 @@ def initalize_spark_session_and_use_cluster(spark=None):
             table=target_table,
             properties=target_connection_properties
         )
-
-        print("Data written to target database.")
-
+        print("✅ Data written to target database.")
     except Exception as e:
-        print("Error writing to target database:", str(e))
+        print("❌ Error writing to target database:", str(e))
         return {"status": "error", "message": str(e)}, 500
-
-    # 🚨 DO NOT STOP SPARK HERE
 
     return {"status": "success", "rows_processed": row_count}, 200
