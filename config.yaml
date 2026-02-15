@@ -1,4 +1,4 @@
-spark_master: "spark://spark-network:7077"
+spark_master: "spark://spark-net:7077"
 spark_app_name: "MySparkApp"
 spark_executor_memory: "2g"
 spark_executor_cores: 2
