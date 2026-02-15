@@ -1,5 +1,6 @@
 FROM registry.fedoraproject.org/f33/python3
 USER root
+WORKDIR /usr/src/app
 RUN yum -y update && \
     yum -y install java-11-openjdk-devel && \
     yum clean all
