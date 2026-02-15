@@ -7,12 +7,11 @@ with open("config.yaml", "r") as config_file:
     config = yaml.safe_load(config_file)
 
 
-
-def initalize_spark_session_and_use_cluster():
-    # -------------------------------------------------------
+# -------------------------------------------------------
     # 1. Create Spark Session (Standalone Cluster)
     # -------------------------------------------------------
-    spark = (
+
+spark = (
         SparkSession.builder
         .appName("DB-ETL-Clustering-Service")
         .master(f"{config['spark_master']}")
@@ -24,6 +23,9 @@ def initalize_spark_session_and_use_cluster():
         .config("spark.sql.shuffle.partitions", "4")
         .getOrCreate()
     )
+
+
+def initalize_spark_session_and_use_cluster():
 
     spark.sparkContext.setLogLevel("ERROR")
     print("Spark Session initialized with cluster master:", config['spark_master'])
