@@ -23,11 +23,13 @@ def initalize_spark_session_and_use_cluster():
         .getOrCreate()
     )
 
+    spark.sparkContext.setLogLevel("ERROR")
+
     # -------------------------------------------------------
     # 2. READ FROM SOURCE DATABASE → DataFrame
     # -------------------------------------------------------
 
-    jdbc_url = "jdbc:postgresql://35.172.200.140:8100/postgres"
+    jdbc_url = "jdbc:postgresql://10.88.0.1:8100/postgres"
     source_table = "public.customers"
 
     connection_properties = {
@@ -75,7 +77,7 @@ def initalize_spark_session_and_use_cluster():
     # 6. WRITE TO TARGET DATABASE
     # -------------------------------------------------------
 
-    target_jdbc_url = "jdbc:postgresql://35.172.200.140:8101/postgres"
+    target_jdbc_url = "jdbc:postgresql://10.88.0.1:8101/postgres"
     target_table = "public.customers"
 
     target_connection_properties = {
