@@ -24,6 +24,8 @@ def initalize_spark_session_and_use_cluster():
     )
 
     spark.sparkContext.setLogLevel("ERROR")
+    print("Spark Session initialized with cluster master:", config['spark_master'])
+    print("Spark Version:", spark.version)
 
     # -------------------------------------------------------
     # 2. READ FROM SOURCE DATABASE → DataFrame
@@ -38,40 +40,54 @@ def initalize_spark_session_and_use_cluster():
         "driver": "org.postgresql.Driver"
     }
 
-    source_df = (
-        spark.read
-        .jdbc(
-            url=jdbc_url,
-            table=source_table,
-            properties=connection_properties
+    try:
+        source_df = (
+            spark.read
+            .jdbc(
+                url=jdbc_url,
+                table=source_table,
+                properties=connection_properties
+            )
         )
-    )
 
-    print("Source Schema:")
-    source_df.printSchema()
+        print("Source Schema:")
+        source_df.printSchema()
+    except Exception as e:
+        print("Error reading from source database:", str(e))
+        spark.stop()
+        return {"status": "error", "message": "Failed to read from source database."}, 500
 
     # -------------------------------------------------------
     # 3. WRITE TO PARQUET (Cluster Shared Volume)
     # -------------------------------------------------------
 
-    parquet_path = f"{config['spark_volume_mount_data_path']}"
+    try:
+        parquet_path = f"{config['spark_volume_mount_data_path']}"
 
-    (
-        source_df.write
-        .mode("overwrite")
-        .parquet(parquet_path)
-    )
+        (
+            source_df.write
+            .mode("overwrite")
+            .parquet(parquet_path)
+        )
 
-    print("Data written to parquet stage.")
+        print("Data written to parquet stage.")
+    except Exception as e:
+        print("Error writing to parquet:", str(e))
+        spark.stop()
+        return {"status": "error", "message": "Failed to write to parquet."}, 500
 
     # -------------------------------------------------------
     # 4. READ PARQUET BACK → DataFrame
     # -------------------------------------------------------
+    try:
+        reloaded_df = spark.read.parquet(parquet_path)
 
-    reloaded_df = spark.read.parquet(parquet_path)
-
-    print("Reloaded Schema:")
-    reloaded_df.printSchema()
+        print("Reloaded Schema:")
+        reloaded_df.printSchema()
+    except Exception as e:
+        print("Error reading from parquet:", str(e))
+        spark.stop()
+        return {"status": "error", "message": "Failed to read from parquet."}, 500
 
     # -------------------------------------------------------
     # 6. WRITE TO TARGET DATABASE
@@ -85,18 +101,22 @@ def initalize_spark_session_and_use_cluster():
         "password": "passwordadmintarget",
         "driver": "org.postgresql.Driver"
     }
-
-    (
-        reloaded_df.write
-        .mode("append")  # use overwrite if needed
-        .jdbc(
-            url=target_jdbc_url,
-            table=target_table,
-            properties=target_connection_properties
+    try:
+        (
+            reloaded_df.write
+            .mode("append")  # use overwrite if needed
+            .jdbc(
+                url=target_jdbc_url,
+                table=target_table,
+                properties=target_connection_properties
+            )
         )
-    )
 
-    print("Data written to target database.")
+        print("Data written to target database.")
+    except Exception as e:
+        print("Error writing to target database:", str(e))
+        spark.stop()
+        return {"status": "error", "message": "Failed to write to target database."}, 500
 
     # -------------------------------------------------------
     # 7. Stop Session
