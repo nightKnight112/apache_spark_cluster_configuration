@@ -22,7 +22,7 @@ def create_spark():
             SparkSession.builder
             .appName("DB-ETL-Clustering-Service")
             .master("spark://spark-master:7077")
-
+            .config("spark.jars", "postgresql-42.5.4.jar")
             .config("spark.driver.host", "spark-driver")
             .config("spark.driver.bindAddress", "0.0.0.0")
             .config("spark.driver.port", "7078")
