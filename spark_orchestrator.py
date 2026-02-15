@@ -102,7 +102,7 @@ def initalize_spark_session_and_use_cluster(spark=None):
     # WRITE TO PARQUET (MAIN)
     # -------------------------------------------------------
 
-    parquet_path = "/opt/spark/data"
+    parquet_path = "/opt/spark/data/customers_output"
 
     try:
         source_df.write.mode("overwrite").parquet(parquet_path)
