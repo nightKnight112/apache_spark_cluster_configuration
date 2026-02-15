@@ -15,7 +15,7 @@ def initalize_spark_session_and_use_cluster():
     spark = (
         SparkSession.builder
         .appName("DB-ETL-Clustering-Service")
-        .master(f"{config["spark_master"]}")
+        .master(f"{config['spark_master']}")
         .config("spark.executor.memory", "2g")
         .config("spark.executor.cores", "2")
         .config("spark.driver.memory", "1g")
@@ -52,7 +52,7 @@ def initalize_spark_session_and_use_cluster():
     # 3. WRITE TO PARQUET (Cluster Shared Volume)
     # -------------------------------------------------------
 
-    parquet_path = f"{config["spark_volume_mount_data_path"]}"
+    parquet_path = f"{config['spark_volume_mount_data_path']}"
 
     (
         source_df.write
