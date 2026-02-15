@@ -20,6 +20,8 @@ def initalize_spark_session_and_use_cluster():
         .config("spark.executor.cores", "2")
         .config("spark.driver.memory", "1g")
         .config("spark.jars", "/usr/src/app/jars/postgresql-42.7.3.jar")
+        .config("spark.default.parallelism", "4")
+        .config("spark.sql.shuffle.partitions", "4")
         .getOrCreate()
     )
 
