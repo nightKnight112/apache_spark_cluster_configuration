@@ -40,6 +40,8 @@ def initalize_spark_session_and_use_cluster(spark=None):
         print("Source Schema:")
         source_df.printSchema()
 
+        print("SparkContext stopped?:", spark.sparkContext._jsc.sc().isStopped())
+
         row_count = source_df.count()
         print("Number of rows:", row_count)
 
